@@ -2,7 +2,14 @@ import './style.css'
 import ReactDOM from 'react-dom/client'
 import { Canvas } from '@react-three/fiber'
 import Experience from './Experience.jsx'
+import LocomotiveScroll from 'locomotive-scroll';
 
+const scroll = new LocomotiveScroll({
+  el: document.querySelector('#js-scroll'),
+  smooth: true,
+  getSpeed: true,
+  getDirection: true
+});
 const root = ReactDOM.createRoot(document.querySelector('#root'))
 
 root.render(
