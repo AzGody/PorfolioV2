@@ -10,121 +10,210 @@ const scroll = new LocomotiveScroll({
   getSpeed: true,
   getDirection: true
 });
-const root = ReactDOM.createRoot(document.querySelector('#root'))
 
+
+const root = ReactDOM.createRoot(document.querySelector('#pc'))
 root.render(
-    <Canvas
-        camera={ {
-            fov: 45,
-            near: 0.1,
-            far: 2000,
-            position: [ -3, 2, 5 ]
-        } }
-    >
-        <Experience />
-    </Canvas>
+  <Canvas
+      camera={ {
+          fov: 45,
+          near: 0.1,
+          far: 2000,
+          position: [ -3, 2, 5 ]
+      } }
+  >
+      <Experience />
+  </Canvas>
 )
 
-$(function () {
+console.clear();
+
+gsap.registerPlugin(ScrollTrigger);
 
 
-    //Disable drgging the images
-    $('img').on('dragstart', function(event) { event.preventDefault(); });
-    // $('nav').addClass('desk');
-    var navPos = $('nav').position().top;
-    var testPos = $('.testtest').height()
-    var lastPos = 0;
-    console.log('salut')
-    $(window).on('scroll', function () {
-        var pos = $(window).scrollTop();
 
-        if (pos >= testPos + $('.skills li span span').height()+20 && lastPos < pos) {
-            // console.log('skills')
-            $('.skills li span span').addClass('active');
-        }
-        if (pos < testPos - 300 && lastPos > pos) {
-            // console.log('pas nav')
-            $('.skills li span span').removeClass('active');
-        }
-        // if (pos >= navPos + $('nav').height() && lastPos < pos) {
-        //     console.log('nav')
-        //     $('nav').addClass('fixed');
-        // }
-        // if (pos < navPos && lastPos > pos) {
-        //     console.log('pas nav')
-        //     $('nav').removeClass('fixed');
-        // }
-        lastPos = pos;
+// Using Locomotive Scroll from Locomotive https://github.com/locomotivemtl/locomotive-scroll
+// each time Locomotive Scroll updates, tell ScrollTrigger to update too (sync positioning)
+scroll.on("scroll", ScrollTrigger.update);
+
+// tell ScrollTrigger to use these proxy methods for the "#js-scroll" element since Locomotive Scroll is hijacking things
+ScrollTrigger.scrollerProxy("#js-scroll", {
+  scrollTop(value) {
+    return arguments.length ? scroll.scrollTo(value, 0, 0) : scroll.scroll.instance.scroll.y;
+  }, // we don't have to define a scrollLeft because we're only scrolling vertically.
+  getBoundingClientRect() {
+    return {top: 0, left: 0, width: window.innerWidth, height: window.innerHeight};
+  },
+  // LocomotiveScroll handles things completely differently on mobile devices - it doesn't even transform the container at all! So to get the correct behavior and avoid jitters, we should pin things with position: fixed on mobile. We sense it by checking to see if there's a transform applied to the container (the LocomotiveScroll-controlled element).
+  pinType: document.querySelector("#js-scroll").style.transform ? "transform" : "fixed"
+});
+
+
+
+const sections = gsap.utils.toArray('section')
+
+sections.forEach( function(section) {
+  
+  const inner = section.classList.contains('sectionLeftAndRight') ? section.querySelector('.leftText') : section.querySelector('.section-inner')
+    
+  if (!section.classList.contains('horizontalScrolling')) {
+
+    ScrollTrigger.create({
+
+      scroller: '#js-scroll',
+      trigger: section,
+      start: section.scrollHeight <= window.innerHeight ? 'top top' : 'bottom bottom',
+      end: '+=100%',
+      pin: inner,
+      pinSpacing: false,
+      pinType: 'transform'
+
     })
-    $(window).on('scroll', function () {
-        fnOnScroll();
-      });
-  
-      $(window).on('resize', function () {
-        fnOnResize();
-      });
-  
-  
-      var agTimeline = $('.js-timeline'),
-        agTimelineLine = $('.js-timeline_line'),
-        agTimelineLineProgress = $('.js-timeline_line-progress'),
-        agTimelinePoint = $('.js-timeline-card_point-box'),
-        agTimelineItem = $('.js-timeline_item'),
-        agOuterHeight = $(window).outerHeight(),
-        agHeight = $(window).height(),
-        agPosY = null,
-        i = null,
-        a = null,
-        n = null,
-        f = -1,
-        agFlag = false;
-  
-      function fnOnScroll() {
-        agPosY = $(window).scrollTop();
-  
-        fnUpdateFrame();
+    
+  } else {
+   
+    const scroll = section.querySelector('[data-scroll-in-section]');
+
+    // the tween and the pinning have two different ScrollTriggers, because the will need different durations for that overlaying-effect to show
+    
+    ScrollTrigger.create({
+
+      scroller: '#js-scroll',
+      trigger: section,
+      start: 'center center',
+      end: () => `+=${section.scrollWidth + window.innerHeight}`, // added an extra window.innerHeight to the end here in comparison to the tween
+      pin: inner,
+      pinSpacing: true,
+      pinType: 'transform',
+      anticipatePin: 1,
+      
+    })
+    
+    gsap.to(scroll, {
+      x: () => `${-(section.scrollWidth - document.documentElement.clientWidth)}px`,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: scroll,
+        scroller: '#js-scroll',
+        start: 'center center',
+        end: () => `+=${section.scrollWidth}`,
+        scrub: true,
       }
-  
-      function fnOnResize() {
-        agPosY = $(window).scrollTop();
-        agHeight = $(window).height();
-  
-        fnUpdateFrame();
-      }
-  
-      function fnUpdateWindow() {
-        agFlag = false;
-  
-        agTimelineLine.css({
-          top: agTimelineItem.first().find(agTimelinePoint).offset().top - agTimelineItem.first().offset().top,
-          bottom: agTimeline.offset().top + agTimeline.outerHeight() - agTimelineItem.last().find(agTimelinePoint).offset().top
-        });
-  
-        f !== agPosY && (f = agPosY, agHeight, fnUpdateProgress());
-      }
-  
-      function fnUpdateProgress() {
-        var agTop = agTimelineItem.last().find(agTimelinePoint).offset().top;
-        
-        i = agTop + agPosY - $(window).scrollTop();
-        a = agTimelineLineProgress.offset().top + agPosY - $(window).scrollTop();
-        n = agPosY - a + agOuterHeight / 2;
-        i <= agPosY + agOuterHeight / 2 && (n = i - a);
-        agTimelineLineProgress.css({height: n + "px"});
-  
-        agTimelineItem.each(function () {
-          var agTop = $(this).find(agTimelinePoint).offset().top;
-  
-          (agTop + agPosY - $(window).scrollTop()) < agPosY + .5 * agOuterHeight ? $(this).addClass('js-ag-active') : $(this).removeClass('js-ag-active');
-        })
-      }
-  
-      function fnUpdateFrame() {
-        agFlag || requestAnimationFrame(fnUpdateWindow);
-        agFlag = true;
-      }
+    });
+    
+  }
+
   
 })
+
+
+
+// each time the window updates, we should refresh ScrollTrigger and then update LocomotiveScroll. 
+ScrollTrigger.addEventListener("refresh", () => scroll.update());
+
+// after everything is set up, refresh() ScrollTrigger and update LocomotiveScroll because padding may have been added for pinning, etc.
+ScrollTrigger.refresh();
+
+// $(function () {
+
+
+//     //Disable drgging the images
+//     $('img').on('dragstart', function(event) { event.preventDefault(); });
+//     // $('nav').addClass('desk');
+//     var navPos = $('nav').position().top;
+//     var testPos = $('.testtest').height()
+//     var lastPos = 0;
+//     console.log('salut')
+//     $(window).on('scroll', function () {
+//         var pos = $(window).scrollTop();
+
+//         if (pos >= testPos + $('.skills li span span').height()+20 && lastPos < pos) {
+//             // console.log('skills')
+//             $('.skills li span span').addClass('active');
+//         }
+//         if (pos < testPos - 300 && lastPos > pos) {
+//             // console.log('pas nav')
+//             $('.skills li span span').removeClass('active');
+//         }
+//         // if (pos >= navPos + $('nav').height() && lastPos < pos) {
+//         //     console.log('nav')
+//         //     $('nav').addClass('fixed');
+//         // }
+//         // if (pos < navPos && lastPos > pos) {
+//         //     console.log('pas nav')
+//         //     $('nav').removeClass('fixed');
+//         // }
+//         lastPos = pos;
+//     })
+//     $(window).on('scroll', function () {
+//         fnOnScroll();
+//       });
+  
+//       $(window).on('resize', function () {
+//         fnOnResize();
+//       });
+  
+  
+//       var agTimeline = $('.js-timeline'),
+//         agTimelineLine = $('.js-timeline_line'),
+//         agTimelineLineProgress = $('.js-timeline_line-progress'),
+//         agTimelinePoint = $('.js-timeline-card_point-box'),
+//         agTimelineItem = $('.js-timeline_item'),
+//         agOuterHeight = $(window).outerHeight(),
+//         agHeight = $(window).height(),
+//         agPosY = null,
+//         i = null,
+//         a = null,
+//         n = null,
+//         f = -1,
+//         agFlag = false;
+  
+//       function fnOnScroll() {
+//         agPosY = $(window).scrollTop();
+  
+//         fnUpdateFrame();
+//       }
+  
+//       function fnOnResize() {
+//         agPosY = $(window).scrollTop();
+//         agHeight = $(window).height();
+  
+//         fnUpdateFrame();
+//       }
+  
+//       function fnUpdateWindow() {
+//         agFlag = false;
+  
+//         agTimelineLine.css({
+//           top: agTimelineItem.first().find(agTimelinePoint).offset().top - agTimelineItem.first().offset().top,
+//           bottom: agTimeline.offset().top + agTimeline.outerHeight() - agTimelineItem.last().find(agTimelinePoint).offset().top
+//         });
+  
+//         f !== agPosY && (f = agPosY, agHeight, fnUpdateProgress());
+//       }
+  
+//       function fnUpdateProgress() {
+//         var agTop = agTimelineItem.last().find(agTimelinePoint).offset().top;
+        
+//         i = agTop + agPosY - $(window).scrollTop();
+//         a = agTimelineLineProgress.offset().top + agPosY - $(window).scrollTop();
+//         n = agPosY - a + agOuterHeight / 2;
+//         i <= agPosY + agOuterHeight / 2 && (n = i - a);
+//         agTimelineLineProgress.css({height: n + "px"});
+  
+//         agTimelineItem.each(function () {
+//           var agTop = $(this).find(agTimelinePoint).offset().top;
+  
+//           (agTop + agPosY - $(window).scrollTop()) < agPosY + .5 * agOuterHeight ? $(this).addClass('js-ag-active') : $(this).removeClass('js-ag-active');
+//         })
+//       }
+  
+//       function fnUpdateFrame() {
+//         agFlag || requestAnimationFrame(fnUpdateWindow);
+//         agFlag = true;
+//       }
+  
+// })
   
 
 /* 
@@ -428,7 +517,7 @@ const fx = new TextScramble(el);
 let counter = 0;
 const next = () => {
   fx.setText(phrases[counter]).then(() => {
-    setTimeout(next, 800);
+    setTimeout(next, 1500);
   });
   counter = (counter + 1) % phrases.length;
 };
