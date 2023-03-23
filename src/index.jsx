@@ -15,14 +15,14 @@ const scroll = new LocomotiveScroll({
 const root = ReactDOM.createRoot(document.querySelector('#pc'))
 root.render(
   <Canvas
-      camera={ {
-          fov: 45,
-          near: 0.1,
-          far: 2000,
-          position: [ -3, 2, 5 ]
-      } }
+    camera={{
+      fov: 45,
+      near: 0.1,
+      far: 2000,
+      position: [-3, 2, 5]
+    }}
   >
-      <Experience />
+    <Experience />
   </Canvas>
 )
 
@@ -42,7 +42,7 @@ ScrollTrigger.scrollerProxy("#js-scroll", {
     return arguments.length ? scroll.scrollTo(value, 0, 0) : scroll.scroll.instance.scroll.y;
   }, // we don't have to define a scrollLeft because we're only scrolling vertically.
   getBoundingClientRect() {
-    return {top: 0, left: 0, width: window.innerWidth, height: window.innerHeight};
+    return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
   },
   // LocomotiveScroll handles things completely differently on mobile devices - it doesn't even transform the container at all! So to get the correct behavior and avoid jitters, we should pin things with position: fixed on mobile. We sense it by checking to see if there's a transform applied to the container (the LocomotiveScroll-controlled element).
   pinType: document.querySelector("#js-scroll").style.transform ? "transform" : "fixed"
@@ -52,10 +52,10 @@ ScrollTrigger.scrollerProxy("#js-scroll", {
 
 const sections = gsap.utils.toArray('section')
 
-sections.forEach( function(section) {
-  
+sections.forEach(function (section) {
+
   const inner = section.classList.contains('sectionLeftAndRight') ? section.querySelector('.leftText') : section.querySelector('.section-inner')
-    
+
   if (!section.classList.contains('horizontalScrolling')) {
 
     ScrollTrigger.create({
@@ -69,13 +69,13 @@ sections.forEach( function(section) {
       pinType: 'transform'
 
     })
-    
+
   } else {
-   
+
     const scroll = section.querySelector('[data-scroll-in-section]');
 
     // the tween and the pinning have two different ScrollTriggers, because the will need different durations for that overlaying-effect to show
-    
+
     ScrollTrigger.create({
 
       scroller: '#js-scroll',
@@ -86,9 +86,9 @@ sections.forEach( function(section) {
       pinSpacing: true,
       pinType: 'transform',
       anticipatePin: 1,
-      
+
     })
-    
+
     gsap.to(scroll, {
       x: () => `${-(section.scrollWidth - document.documentElement.clientWidth)}px`,
       ease: 'none',
@@ -100,10 +100,10 @@ sections.forEach( function(section) {
         scrub: true,
       }
     });
-    
+
   }
 
-  
+
 })
 
 
@@ -115,7 +115,6 @@ ScrollTrigger.addEventListener("refresh", () => scroll.update());
 ScrollTrigger.refresh();
 
 // $(function () {
-
 
 //     //Disable drgging the images
 //     $('img').on('dragstart', function(event) { event.preventDefault(); });
@@ -148,12 +147,12 @@ ScrollTrigger.refresh();
 //     $(window).on('scroll', function () {
 //         fnOnScroll();
 //       });
-  
+
 //       $(window).on('resize', function () {
 //         fnOnResize();
 //       });
-  
-  
+
+
 //       var agTimeline = $('.js-timeline'),
 //         agTimelineLine = $('.js-timeline_line'),
 //         agTimelineLineProgress = $('.js-timeline_line-progress'),
@@ -167,54 +166,54 @@ ScrollTrigger.refresh();
 //         n = null,
 //         f = -1,
 //         agFlag = false;
-  
+
 //       function fnOnScroll() {
 //         agPosY = $(window).scrollTop();
-  
+
 //         fnUpdateFrame();
 //       }
-  
+
 //       function fnOnResize() {
 //         agPosY = $(window).scrollTop();
 //         agHeight = $(window).height();
-  
+
 //         fnUpdateFrame();
 //       }
-  
+
 //       function fnUpdateWindow() {
 //         agFlag = false;
-  
+
 //         agTimelineLine.css({
 //           top: agTimelineItem.first().find(agTimelinePoint).offset().top - agTimelineItem.first().offset().top,
 //           bottom: agTimeline.offset().top + agTimeline.outerHeight() - agTimelineItem.last().find(agTimelinePoint).offset().top
 //         });
-  
+
 //         f !== agPosY && (f = agPosY, agHeight, fnUpdateProgress());
 //       }
-  
+
 //       function fnUpdateProgress() {
 //         var agTop = agTimelineItem.last().find(agTimelinePoint).offset().top;
-        
+
 //         i = agTop + agPosY - $(window).scrollTop();
 //         a = agTimelineLineProgress.offset().top + agPosY - $(window).scrollTop();
 //         n = agPosY - a + agOuterHeight / 2;
 //         i <= agPosY + agOuterHeight / 2 && (n = i - a);
 //         agTimelineLineProgress.css({height: n + "px"});
-  
+
 //         agTimelineItem.each(function () {
 //           var agTop = $(this).find(agTimelinePoint).offset().top;
-  
+
 //           (agTop + agPosY - $(window).scrollTop()) < agPosY + .5 * agOuterHeight ? $(this).addClass('js-ag-active') : $(this).removeClass('js-ag-active');
 //         })
 //       }
-  
+
 //       function fnUpdateFrame() {
 //         agFlag || requestAnimationFrame(fnUpdateWindow);
 //         agFlag = true;
 //       }
-  
+
 // })
-  
+
 
 /* 
     pointer.js was created by OwL for use on websites, 
@@ -239,77 +238,77 @@ let mouseDown = false
 ring.style.transition = '0.15s'
 const init_pointer = (options) => {
 
-    window.onmousemove = (mouse) => {
-        mouseX = mouse.clientX
-        mouseY = mouse.clientY
+  window.onmousemove = (mouse) => {
+    mouseX = mouse.clientX
+    mouseY = mouse.clientY
+  }
+
+  window.onmousedown = (mouse) => {
+    mouseDown = true
+  }
+
+  window.onmouseup = (mouse) => {
+    mouseDown = false
+  }
+
+  const trace = (a, b, n) => {
+    return (1 - n) * a + n * b;
+  }
+  window["trace"] = trace
+
+  const getOption = (option) => {
+    let defaultObj = {
+      pointerColor: "#2994D1",
+      ringSize: 25,
+      ringClickSize: (options["ringSize"] || 25) - 5,
+      hoverSize: 30
     }
-
-    window.onmousedown = (mouse) => {
-        mouseDown = true
+    if (options[option] == undefined) {
+      return defaultObj[option]
+    } else {
+      return options[option]
     }
+  }
 
-    window.onmouseup = (mouse) => {
-        mouseDown = false
+  const render = () => {
+    ringX = trace(ringX, mouseX, 1)
+    ringY = trace(ringY, mouseY, 1)
+
+    if (document.querySelector(".page-link:hover")) {
+      pointer.style.borderColor = getOption("pointerColor")
+      ring.style.padding = getOption("hoverSize") + "px"
+      isHover = true
+    } else {
+      pointer.style.borderColor = "white"
+      isHover = false
+      if (mouseDown) {
+
+        ring.style.padding = getOption("ringClickSize") + "px"
+      } else {
+        ring.style.padding = getOption("ringSize") + "px"
+
+      }
     }
+    ring.style.borderColor = getOption("pointerColor")
+    // if(isHover) {
+    //     ring.style.padding = 100
+    // }else {
+    //     ring.style.padding = 25
+    // }
 
-    const trace = (a, b, n) => {
-        return (1 - n) * a + n * b;
-    }
-    window["trace"] = trace
 
-    const getOption = (option) => {
-        let defaultObj = {
-            pointerColor: "#2994D1",
-            ringSize: 25,
-            ringClickSize: (options["ringSize"] || 25) - 5,
-            hoverSize: 30
-        }
-        if (options[option] == undefined) {
-            return defaultObj[option]
-        } else {
-            return options[option]
-        }
-    }
+    pointer.style.transform = `translate(${mouseX}px, ${mouseY}px)`
+    ring.style.transform = `translate(${ringX - (mouseDown ? getOption("ringClickSize") : getOption("ringSize"))}px, ${ringY - (mouseDown ? getOption("ringClickSize") : getOption("ringSize"))}px)`
+    // ring.style.transform = `translate(${ringX - (isHover ? getOption("ringClickSize") : getOption("ringClickSize"))}px, ${ringY - (isHover ? getOption("ringClickSize") : getOption("ringClickSize"))}px)`
 
-    const render = () => {
-        ringX = trace(ringX, mouseX, 1)
-        ringY = trace(ringY, mouseY, 1)
-     
-        if (document.querySelector(".page-link:hover")) {
-            pointer.style.borderColor = getOption("pointerColor")
-            ring.style.padding = getOption("hoverSize") + "px"
-            isHover = true
-        } else {
-            pointer.style.borderColor = "white"
-            isHover = false
-            if (mouseDown) {
-             
-                ring.style.padding = getOption("ringClickSize") + "px"
-            } else {
-                ring.style.padding = getOption("ringSize") + "px"
-                
-            }
-        }
-        ring.style.borderColor = getOption("pointerColor")
-        // if(isHover) {
-        //     ring.style.padding = 100
-        // }else {
-        //     ring.style.padding = 25
-        // }
-        
-
-        pointer.style.transform = `translate(${mouseX}px, ${mouseY}px)`
-        ring.style.transform = `translate(${ringX - (mouseDown ? getOption("ringClickSize") : getOption("ringSize"))}px, ${ringY - (mouseDown ? getOption("ringClickSize") : getOption("ringSize"))}px)`
-        // ring.style.transform = `translate(${ringX - (isHover ? getOption("ringClickSize") : getOption("ringClickSize"))}px, ${ringY - (isHover ? getOption("ringClickSize") : getOption("ringClickSize"))}px)`
-
-        requestAnimationFrame(render)
-    }
     requestAnimationFrame(render)
+  }
+  requestAnimationFrame(render)
 }
 
 
 //Top Scroll bar
-window.onscroll = function() {myFunction()};
+window.onscroll = function () { myFunction() };
 
 
 //Animation go to page from menu
@@ -324,11 +323,11 @@ function myFunction() {
 
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
-      e.preventDefault();
+    e.preventDefault();
 
-      document.querySelector(this.getAttribute('href')).scrollIntoView({
-          behavior: 'smooth'
-      });
+    document.querySelector(this.getAttribute('href')).scrollIntoView({
+      behavior: 'smooth'
+    });
   });
 });
 
@@ -338,7 +337,7 @@ var w = window.innerWidth
 particlesJS("particles-js", {
   "particles": {
     "number": {
-      "value": w/12,
+      "value": w / 12,
       "density": {
         "enable": true,
         "value_area": 2500
@@ -384,7 +383,7 @@ particlesJS("particles-js", {
     },
     "line_linked": {
       "enable": true,
-      "distance": w/12,
+      "distance": w / 12,
       "color": "#ffffff",
       "opacity": 0.4,
       "width": 1
@@ -419,7 +418,7 @@ particlesJS("particles-js", {
     },
     "modes": {
       "grab": {
-        "distance": w/12,
+        "distance": w / 12,
         "line_linked": {
           "opacity": 1
         }
@@ -432,7 +431,7 @@ particlesJS("particles-js", {
         "speed": 3
       },
       "repulse": {
-        "distance": w/5,
+        "distance": w / 5,
         "duration": 0.4
       },
       "push": {
@@ -501,14 +500,15 @@ class TextScramble {
   }
   randomChar() {
     return this.chars[Math.floor(Math.random() * this.chars.length)];
-  }}
+  }
+}
 
 
 const phrases = [
-'Rigoureux',
-'Automome',
-'Créatif',
-'Développeur full stack',];
+  'Rigoureux',
+  'Automome',
+  'Créatif',
+  'Développeur full stack',];
 
 
 const el = document.querySelector('.text');
@@ -523,3 +523,35 @@ const next = () => {
 };
 
 next();
+
+const projets = document.querySelectorAll('.item');
+
+
+projets.forEach(projet => {
+  projet.addEventListener('click', () => {
+    const overlay = document.createElement('div');
+    overlay.classList.add('overlay');
+
+    const contenu = document.createElement('div');
+    contenu.classList.add('contenu');
+    contenu.innerHTML = `
+      <h3>Titre du projet</h3>
+      <p>Description complète du projet</p>
+    `;
+
+    overlay.appendChild(contenu);
+    document.body.appendChild(overlay);
+
+     // Animation d'ouverture avec GSAP
+     gsap.fromTo(overlay, {opacity: 0}, {opacity: 1, duration: 0.25});
+     gsap.fromTo(contenu, {opacity: 0}, {opacity: 1, duration: 0.25, delay: 0.05});
+
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) {
+        // Animation de fermeture avec GSAP
+        gsap.to(contenu, {opacity: 0, duration: 0.25, onComplete: () => overlay.remove()});
+        gsap.to(overlay, {opacity: 0, duration: 0.25, delay: 0.05});
+      }
+    });
+  });
+});
