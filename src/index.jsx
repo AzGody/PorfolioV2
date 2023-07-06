@@ -544,14 +544,24 @@ projets.forEach(projet => {
 
      // Animation d'ouverture avec GSAP
      gsap.fromTo(overlay, {opacity: 0}, {opacity: 1, duration: 0.25});
-     gsap.fromTo(contenu, {opacity: 0}, {opacity: 1, duration: 0.25, delay: 0.05});
+     gsap.fromTo(contenu, {opacity: 0}, {opacity: 1, duration: 0.25});
 
     overlay.addEventListener('click', (event) => {
       if (event.target === overlay) {
         // Animation de fermeture avec GSAP
         gsap.to(contenu, {opacity: 0, duration: 0.25, onComplete: () => overlay.remove()});
-        gsap.to(overlay, {opacity: 0, duration: 0.25, delay: 0.05});
+        gsap.to(overlay, {opacity: 0, duration: 0.25});
       }
     });
+  });
+});
+
+const timelineItems = document.querySelectorAll(".timeline-item");
+
+timelineItems.forEach((item) => {
+  scroll.on("scroll", () => {
+    if (scroll.scroll.y > item.offsetTop - window.innerHeight / 2) {
+      item.classList.add("animate");
+    }
   });
 });
